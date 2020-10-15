@@ -3,6 +3,7 @@ import {useAuth} from "../../../hooks/use-auth";
 import styled from 'styled-components';
 import {LoginForm} from "../../Forms/LoginForm/LoginForm";
 import {Paper, Typography} from "@material-ui/core";
+import {DefaultFormLayout} from "../../Layouts/DefaultFormLayout";
 
 const Container = styled.div`
   width: 450px;
@@ -15,21 +16,15 @@ const FormContainer = styled.div`
 
 export const LoginPage: React.FC = () => {
   const auth = useAuth();
+
   return (
-    <Container>
-      <Paper variant="elevation" elevation={2}>
-        <FormContainer>
-          <Typography variant="h3" component="h1">
-            OIT Login
-          </Typography>
-          <LoginForm
-            onSubmit={({email, password}) => {
-              console.log('waaaa', email, password);
-              auth.login(email, password);
-            }}
-          />
-        </FormContainer>
-      </Paper>
-    </Container>
-  )
+    <DefaultFormLayout title="Login" maxWidth="sm">
+      <LoginForm
+        onSubmit={({email, password}) => {
+          console.log('waaaa', email, password);
+          auth.login(email, password);
+        }}
+      />
+    </DefaultFormLayout>
+  );
 }

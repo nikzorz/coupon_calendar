@@ -5,7 +5,7 @@ import {
   Route
 } from 'react-router-dom';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import {CalendarPage} from "../Pages/Calendar/CalendarPage";
+import {CalendarIndexPage} from "../Pages/Calendar/CalendarIndexPage";
 import {OfferIndexPage} from "../Pages/Offers/OfferIndexPage";
 import {LoginPage} from "../Pages/User/LoginPage";
 import {UnauthenticatedRoute} from "./UnauthenticatedRoute";
@@ -13,6 +13,9 @@ import {AuthenticatedRoute} from "./AuthenticatedRoute";
 import {Navbar} from "./Navbar";
 import {makeStyles} from "@material-ui/core/styles";
 import {createStyles, Theme} from "@material-ui/core";
+import {SchedulesIndexPage} from "../Pages/Schedules/SchedulesIndexPage";
+import {ScheduleCreatePage} from "../Pages/Schedules/ScheduleCreatePage";
+import {CustomOfferCreatePage} from "../Pages/Offers/CustomOfferCreatePage";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
   rootContainer: {
@@ -41,11 +44,23 @@ export const Router: React.FC = () => {
           </Route>
 
           {/* Authenticated Routes */}
+          <Route path="/schedules/create">
+            <ScheduleCreatePage />
+          </Route>
+          <Route path="/schedules">
+            <SchedulesIndexPage />
+          </Route>
+          <Route path="/offers/custom/create">
+            <CustomOfferCreatePage />
+          </Route>
+          <Route path="/offers/manage">
+            <OfferIndexPage />
+          </Route>
           <Route path="/offers">
             <OfferIndexPage />
           </Route>
           <Route path="/">
-            <CalendarPage />
+            <CalendarIndexPage />
           </Route>
         </Switch>
       </div>

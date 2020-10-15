@@ -1,7 +1,18 @@
 import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import {FormControl, InputLabel, Input, FormHelperText, Button, Link, Typography} from '@material-ui/core'
+import {
+  FormControl,
+  InputLabel,
+  Input,
+  FormHelperText,
+  Button,
+  Link,
+  Typography,
+  Box,
+  Grid,
+  TextField
+} from '@material-ui/core'
 import { Link as RouterLink } from "react-router-dom";
 import * as yup from "yup";
 
@@ -31,65 +42,62 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
 
 
   return (
-    <div>
+    <Box>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <FormControl
-            error={!!errors.email}
-            margin="normal"
-            fullWidth
-          >
-            <InputLabel htmlFor="loginForm-email">
-              Email*
-            </InputLabel>
+        <Grid container spacing={3}>
+          {/* Email Input */}
+          <Grid item xs={12}>
             <Controller
-              as={Input}
-              id="loginForm-email"
-              name="email"
+              name='email'
               defaultValue=""
-              aria-describedby="loginForm-email-help-text"
-              aria-invalid={errors.email ? "true" : "false"}
               control={control}
+              render={({onBlur, onChange, value}) => (
+                <TextField
+                  variant="filled"
+                  label="Email*"
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                  value={value}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  fullWidth
+                />
+              )}
             />
-            <FormHelperText id="loginForm-email-help-text">
-              {errors.email?.message}
-            </FormHelperText>
-          </FormControl>
-        </div>
-
-        <div>
-          <FormControl
-            error={!!errors.email}
-            margin="normal"
-            fullWidth
-          >
-            <InputLabel htmlFor="loginForm-email">
-              Password*
-            </InputLabel>
+          </Grid>
+          {/* Password Input */}
+          <Grid item xs={12}>
             <Controller
-              as={Input}
-              id="loginForm-password"
-              name="password"
-              type="password"
+              name='password'
               defaultValue=""
-              aria-describedby="loginForm-password-help-text"
-              aria-invalid={errors.password ? "true" : "false"}
               control={control}
+              render={({onBlur, onChange, value}) => (
+                <TextField
+                  variant="filled"
+                  type="password"
+                  label="Password*"
+                  error={!!errors.password}
+                  helperText={errors.password?.message}
+                  value={value}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  fullWidth
+                />
+              )}
             />
-            <FormHelperText id="loginForm-password-help-text">
-              {errors.password?.message}
-            </FormHelperText>
-          </FormControl>
-        </div>
-        <Typography
-          variant="body1"
-          gutterBottom
-        >
-          <Link component={RouterLink} to="/forgotpassword">
-            Forgot Password?
-          </Link>
-        </Typography>
-        <div>
+          </Grid>
+        </Grid>
+        <Box margin="16px 0">
+          <Typography
+            variant="body1"
+            gutterBottom
+          >
+            <Link component={RouterLink} to="/forgotpassword">
+              Forgot Password?
+            </Link>
+          </Typography>
+        </Box>
+        <Box marginTop="16px">
           <Button
             type="submit"
             variant="contained"
@@ -97,8 +105,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
           >
             Submit
           </Button>
-        </div>
+        </Box>
       </form>
-    </div>
+    </Box>
   )
 }
