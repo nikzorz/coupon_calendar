@@ -2,21 +2,57 @@ import React, {useState} from 'react';
 import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
 import { Link as RouterLink } from 'react-router-dom';
 import {LeftAside, MainSection, RightAside, ThreeColumnContainer} from "../../Layouts/ThreeColumnLayout";
-import {Box, Button, IconButton, List, ListItem, Toolbar, Tooltip, Typography} from "@material-ui/core";
+import {
+  Box,
+  Button,
+  Divider,
+  Grid,
+  IconButton,
+  List,
+  ListItem,
+  Paper,
+  Toolbar,
+  Tooltip,
+  Typography
+} from "@material-ui/core";
 import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 import MenuIcon from "@material-ui/icons/Menu";
-import {getCurrentDate} from "../../../services/datetimeHelpers";
+import {getCurrentDate} from "../../../helpers/datetimeHelpers";
 import {DatePicker} from "@material-ui/pickers";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import {
+  scheduleWorkflowInfo,
+} from "../../../constants/scheduleConstants";
+import {MemoizedListItemLink} from "../../Common/ListItemLink";
+
+const mockData = Array.apply(null, Array(100));
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
   coopButton: {
     justifyContent: 'start'
+  },
+  content: {
+    height: '100%',
+    overflow: 'auto',
+  },
+  scheduleColumnContainer: {
+    height: '100%',
+    width: `100%`,
+    overflow: 'auto',
+    margin: 0
+  },
+  scheduleColumn: {
+    height: '100%',
+    overflow: 'auto',
+  },
+  scheduleColumnContent: {
+    height: '100%',
+    overflow: 'auto',
   }
 }))
 
-export const SchedulesIndexPage: React.FC = () => {
+export const ScheduleIndexPage: React.FC = () => {
   const classes = useStyles();
   const [date, changeDate] = useState(new Date());
 
@@ -79,16 +115,59 @@ export const SchedulesIndexPage: React.FC = () => {
           </Tooltip>
           <Box flexGrow="1">
             <Typography
-              variant="h6"
+              variant="h4"
               component="h1"
             >
-
+              dsfsdfsdf
             </Typography>
           </Box>
         </Toolbar>
-        <div>
-
-        </div>
+        <Box className={classes.content}>
+          <Grid
+            className={classes.scheduleColumnContainer}
+            spacing={2}
+            container
+          >
+            {scheduleWorkflowInfo.map((workflowKeyInfo) => (
+              <Grid
+                className={classes.scheduleColumn}
+                direction="column"
+                item
+                container
+                xs
+              >
+                <Grid item>
+                  <Typography
+                    variant="h5"
+                    component="h2"
+                    gutterBottom
+                  >
+                    {workflowKeyInfo.label}
+                  </Typography>
+                </Grid>
+                <Grid
+                  className={classes.scheduleColumnContent}
+                  item
+                  xs
+                >
+                  <Paper>
+                    <List>
+                      {mockData.map((_, i) => (
+                        <>
+                          { i > 0 ? <Divider /> : null}
+                          <MemoizedListItemLink
+                            to={`/schedules/${i}`}
+                            primary={`Schedule ${i}`}
+                          />
+                        </>
+                      ))}
+                    </List>
+                  </Paper>
+                </Grid>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
       </MainSection>
       <RightAside>
         <List dense>

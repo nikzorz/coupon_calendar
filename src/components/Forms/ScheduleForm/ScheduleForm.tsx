@@ -1,7 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import {getCurrentDate} from "../../../services/datetimeHelpers";
+import {getCurrentDate} from "../../../helpers/datetimeHelpers";
 import {Controller, useForm} from "react-hook-form";
 import {Box, Button, FormControl, FormHelperText, Grid, Input, InputLabel, TextField} from "@material-ui/core";
 import {KeyboardDatePicker} from "@material-ui/pickers";

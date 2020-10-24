@@ -19,7 +19,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import {getCurrentDate} from "../../../services/datetimeHelpers";
+import {getCurrentDate} from "../../../helpers/datetimeHelpers";
 import {format} from "date-fns";
 import {CalendarWeekView} from "./CalendarWeekView/CalendarWeekView";
 import {CalendarViewTypes} from "../../../constants/calendarConstants";
@@ -85,7 +85,7 @@ export const CalendarIndexPage: React.FC = () => {
           </IconButton>
           <Box flexGrow="1">
             <Typography
-              variant="h6"
+              variant="h4"
               component="h1"
             >
               {format(currentDate, 'LLLL, yyyy')}

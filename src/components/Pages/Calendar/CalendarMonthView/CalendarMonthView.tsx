@@ -2,7 +2,7 @@ import React from 'react';
 import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
 import {getDaysInMonth, getISODay, startOfMonth} from "date-fns";
 import {CalendarMonthViewDay} from "./CalendarMonthViewDay";
-import {getCurrentDate} from "../../../../services/datetimeHelpers";
+import {getCurrentDate} from "../../../../helpers/datetimeHelpers";
 
 
 const useStyles = makeStyles((theme: Theme) => createStyles({

@@ -15,7 +15,7 @@ import {
 import { Link as RouterLink, NavLink, LinkProps as RouterLinkProps } from 'react-router-dom';
 import {AccountCircle, Notifications as NotificationsIcon} from "@material-ui/icons";
 import {makeStyles} from "@material-ui/core/styles";
-import {useAuth} from "../../hooks/use-auth";
+import {useAuth} from "../../hooks/auth/use-auth";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
   grow: {
@@ -41,6 +41,13 @@ export const Navbar: React.FC = () => {
   const isMenuOpen = Boolean(anchorEl);
 
   const auth = useAuth();
+
+  // do not render the navbar if the user is not logged in
+  if (!auth.authUser) {
+    return (
+      <div />
+    );
+  }
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
