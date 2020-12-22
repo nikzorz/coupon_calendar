@@ -2,16 +2,22 @@ import React, {createContext, useContext, useEffect} from 'react';
 import axios, {AxiosInstance} from "axios";
 import {useConfig} from "../config/use-config";
 
-export interface CommonAPI {
-  apiStatus: APIStatuses
-  apiError?: string
-}
-
+// TODO These names feel terrible but I cannot be bothered to think of something better right now
 export enum APIStatuses {
   UNVERIFIED,
   VERIFYING ,
   VALID,
   INVALID
+}
+
+export interface CommonAPI {
+  apiStatus: APIStatuses
+  apiError?: string
+}
+
+export interface FormAPI extends CommonAPI {
+  submitStatus: APIStatuses
+  submitError?: string
 }
 
 const apiContext = createContext<AxiosInstance>({} as AxiosInstance);

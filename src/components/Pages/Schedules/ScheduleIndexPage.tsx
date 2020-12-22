@@ -1,10 +1,11 @@
-import React, {useState} from 'react';
+import React, {useMemo} from 'react';
 import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
-import { Link as RouterLink } from 'react-router-dom';
+import {Link as RouterLink} from 'react-router-dom';
+import {groupBy} from 'lodash';
 import {LeftAside, MainSection, RightAside, ThreeColumnContainer} from "../../Layouts/ThreeColumnLayout";
 import {
   Box,
-  Button,
+  CircularProgress,
   Divider,
   Grid,
   IconButton,
@@ -16,15 +17,17 @@ import {
   Typography
 } from "@material-ui/core";
 import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
-import MenuIcon from "@material-ui/icons/Menu";
-import {getCurrentDate} from "../../../helpers/datetimeHelpers";
 import {DatePicker} from "@material-ui/pickers";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import {
-  scheduleWorkflowInfo,
-} from "../../../constants/scheduleConstants";
+import {scheduleWorkflowInfo,} from "../../../constants/scheduleConstants";
 import {MemoizedListItemLink} from "../../Common/ListItemLink";
+import {NavMarketPicker} from "../../Common/NavMarketPicker";
+import {useCalendar} from "../../../hooks/calendar/use-calendar";
+import {useMarkets} from "../../../hooks/markets/use-markets";
+import {useListSchedules} from "../../../hooks/schedules/use-list-schedules";
+import {APIStatuses} from "../../../hooks/api/use-api";
+import {Schedule} from "../../../types/schedules/schedules";
 
 const mockData = Array.apply(null, Array(100));
 
@@ -49,36 +52,46 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
   scheduleColumnContent: {
     height: '100%',
     overflow: 'auto',
+  },
+  noSchedulesCopy: {
+    paddingLeft: theme.spacing(2)
   }
 }))
 
 export const ScheduleIndexPage: React.FC = () => {
   const classes = useStyles();
-  const [date, changeDate] = useState(new Date());
 
-  const currentDate = getCurrentDate();
+  const {
+    marketIdToMarketNameMap,
+    userMarketIds,
+    apiStatus: marketsApiStatus
+  } = useMarkets();
+
+  const {
+    activeDate,
+    setActiveDate
+  } = useCalendar();
+
+  const {
+    schedules,
+    apiStatus: schedulesApiStatus
+  } = useListSchedules(activeDate, activeDate, userMarketIds);
+
+  const pageReady = [
+    marketsApiStatus,
+    schedulesApiStatus
+  ].every((status) => status === APIStatuses.VALID);
+
+  const currentSchedule = schedules && schedules[0];
+
+  const memoizedSchedulesByStatus = useMemo(() => {
+    return currentSchedule ? groupBy(currentSchedule.marketSchedules, 'workflowStatus') : {};
+  },[currentSchedule]);
 
   return (
     <ThreeColumnContainer>
       <LeftAside>
-        <div>
-          <Tooltip
-            title="Change Co-Op"
-            placement="right"
-            arrow
-          >
-            <Button
-              className={classes.coopButton}
-              variant="text"
-              fullWidth={true}
-              size="large"
-              color="primary"
-              startIcon={<MenuIcon />}
-            >
-              Demo Co-Op
-            </Button>
-          </Tooltip>
-        </div>
+        <NavMarketPicker />
         <div>
           <DatePicker
             autoOk
@@ -86,8 +99,8 @@ export const ScheduleIndexPage: React.FC = () => {
             orientation="landscape"
             variant="static"
             openTo="date"
-            value={date}
-            onChange={(date) => date && changeDate(date)}
+            value={activeDate}
+            onChange={(date) => date && setActiveDate(date)}
           />
         </div>
       </LeftAside>
@@ -118,7 +131,10 @@ export const ScheduleIndexPage: React.FC = () => {
               variant="h4"
               component="h1"
             >
-              dsfsdfsdf
+              {currentSchedule?.title}
+              <Typography variant="subtitle1">
+                {currentSchedule?.startDate} - {currentSchedule?.endDate}
+              </Typography>
             </Typography>
           </Box>
         </Toolbar>
@@ -128,8 +144,14 @@ export const ScheduleIndexPage: React.FC = () => {
             spacing={2}
             container
           >
-            {scheduleWorkflowInfo.map((workflowKeyInfo) => (
+            {!pageReady && (
+              <Grid item>
+                <CircularProgress />
+              </Grid>
+            )}
+            {pageReady && scheduleWorkflowInfo.map((workflowKeyInfo) => (
               <Grid
+                key={workflowKeyInfo.value}
                 className={classes.scheduleColumn}
                 direction="column"
                 item
@@ -152,12 +174,23 @@ export const ScheduleIndexPage: React.FC = () => {
                 >
                   <Paper>
                     <List>
-                      {mockData.map((_, i) => (
+                      {!memoizedSchedulesByStatus[workflowKeyInfo.value] && (
+                        <Typography
+                          className={classes.noSchedulesCopy}
+                          variant='h6'
+                          component="h3"
+                          color="textSecondary"
+                          paragraph
+                        >
+                          No {workflowKeyInfo.label} Schedules to Display
+                        </Typography>
+                      )}
+                      {memoizedSchedulesByStatus[workflowKeyInfo.value]?.map((schedule, i) => (
                         <>
                           { i > 0 ? <Divider /> : null}
                           <MemoizedListItemLink
-                            to={`/schedules/${i}`}
-                            primary={`Schedule ${i}`}
+                            to={`/schedules/${schedule.marketId}`}
+                            primary={marketIdToMarketNameMap ? marketIdToMarketNameMap[schedule.marketId] : ''}
                           />
                         </>
                       ))}

@@ -43,10 +43,11 @@ export const useProvideAuth = ():UseAuthContextType => {
   const api = useApi();
 
   const self = () => {
+    setApiStatus(APIStatuses.VERIFYING);
     api.get<User>('/users/self')
       .then((resp) => {
-        setApiStatus(APIStatuses.VALID);
         setAuthUser(resp.data);
+        setApiStatus(APIStatuses.VALID);
       })
       .catch((error) => {
         console.log('Self error: ', error)
@@ -57,6 +58,7 @@ export const useProvideAuth = ():UseAuthContextType => {
   }
 
   const login = (email: string, password: string) => {
+    setApiStatus(APIStatuses.VERIFYING);
     api.post('/auth/login', null,{
       headers: {
         Authorization: `Bearer ${btoa(`${email}:${password}`)}`

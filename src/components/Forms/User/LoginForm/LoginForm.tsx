@@ -2,10 +2,6 @@ import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
-  FormControl,
-  InputLabel,
-  Input,
-  FormHelperText,
   Button,
   Link,
   Typography,
@@ -15,6 +11,7 @@ import {
 } from '@material-ui/core'
 import { Link as RouterLink } from "react-router-dom";
 import * as yup from "yup";
+import {KeyboardDatePicker} from "@material-ui/pickers";
 
 export interface LoginFormInputs {
   email: string
@@ -54,6 +51,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
               render={({onBlur, onChange, value}) => (
                 <TextField
                   variant="filled"
+                  color="secondary"
                   label="Email*"
                   error={!!errors.email}
                   helperText={errors.email?.message}
@@ -74,6 +72,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
               render={({onBlur, onChange, value}) => (
                 <TextField
                   variant="filled"
+                  color="secondary"
                   type="password"
                   label="Password*"
                   error={!!errors.password}

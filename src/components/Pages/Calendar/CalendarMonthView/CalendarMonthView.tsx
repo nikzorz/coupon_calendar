@@ -1,8 +1,8 @@
 import React from 'react';
 import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
-import {getDaysInMonth, getISODay, startOfMonth} from "date-fns";
+import {getDay, getDaysInMonth, getISODay, set, startOfMonth} from "date-fns";
 import {CalendarMonthViewDay} from "./CalendarMonthViewDay";
-import {getCurrentDate} from "../../../../helpers/datetimeHelpers";
+import {CalendarViewTypes, useCalendar} from "../../../../hooks/calendar/use-calendar";
 
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -18,11 +18,15 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 export const CalendarMonthView: React.FC = () => {
 
   const classes = useStyles();
+  const {
+    activeDate,
+    setCalendarViewType,
+    setActiveDate,
+  } = useCalendar();
 
-  const currentDate = getCurrentDate();
-  const firstDayOfMonthOffset = 7 - getISODay(startOfMonth(currentDate));
+  const firstDayOfMonthOffset = getISODay(startOfMonth(activeDate)) - 1;
 
-  const numDays = firstDayOfMonthOffset + getDaysInMonth(currentDate);
+  const numDays = firstDayOfMonthOffset + getDaysInMonth(activeDate);
   // initialize an array with numDays length
   const daysArray = Array.from({length: numDays}, (_, index) => index)
 
@@ -33,12 +37,21 @@ export const CalendarMonthView: React.FC = () => {
           const dayOffset = dayIndex - firstDayOfMonthOffset;
           const isOffsetDay = (dayOffset < 0);
 
+          const dayDate = set(activeDate, { date: dayOffset+1});
+
           return (isOffsetDay) ? (
-            <div key={dayIndex}/>
+            <div key={dayDate.toISOString()}/>
           ) : (
             <CalendarMonthViewDay
               dayNumber={dayOffset + 1}
-              key={dayIndex}
+              key={dayDate.toISOString()}
+              onClick={() => {
+                setActiveDate(dayDate)
+              }}
+              onDoubleClick={() => {
+                setCalendarViewType(CalendarViewTypes.week);
+                setActiveDate(dayDate);
+              }}
             />
           )
         })

@@ -2,21 +2,21 @@ import React, { useEffect, useState} from 'react';
 import {APIStatuses, CommonAPI, useApi} from "../api/use-api";
 import {OfferLibrary} from "../../types/offers/offerLibrary";
 
-export interface UseOfferlibraryType extends CommonAPI {
-  offerLibrary?: OfferLibrary
+export interface UseOfferLibrariesType extends CommonAPI {
+  offerLibraries?: OfferLibrary[]
 }
 
-export const useOfferLibrary = (marketId?: number):UseOfferlibraryType => {
+export const useOfferLibraries = (marketIds?: number[]):UseOfferLibrariesType => {
   const [apiStatus, setApiStatus] = useState<APIStatuses>(APIStatuses.UNVERIFIED);
   const [apiError, setApiError] = useState<string>();
-  const [offerLibrary, setOfferLibrary] = useState<OfferLibrary>();
+  const [offerLibraries, setOfferLibrary] = useState<OfferLibrary[]>();
   const api = useApi();
 
-  const getOfferLibrary = (marketId: number) => {
+  const getOfferLibraries = (marketIds: number[]) => {
     setApiStatus(APIStatuses.VERIFYING);
-    api.get<OfferLibrary[]>(`/offers/library/list?marketIds=${marketId}`)
+    api.get<OfferLibrary[]>(`/offers/library/list?marketIds=${marketIds.join(',')}`)
       .then((resp) => {
-        setOfferLibrary(resp.data[0]);
+        setOfferLibrary(resp.data);
         setApiStatus(APIStatuses.VALID);
       })
       .catch((error) => {
@@ -27,14 +27,14 @@ export const useOfferLibrary = (marketId?: number):UseOfferlibraryType => {
   }
 
   useEffect(() => {
-    if (marketId) {
-      getOfferLibrary(marketId)
+    if (marketIds && marketIds.length > 0) {
+      getOfferLibraries(marketIds)
     }
-  }, [marketId])
+  }, [marketIds])
 
   return {
     apiStatus,
     apiError,
-    offerLibrary
+    offerLibraries
   }
 }

@@ -1,11 +1,11 @@
-import React, {useState} from 'react';
+import React, {useMemo} from 'react';
 import {Link as RouterLink} from 'react-router-dom';
 import {LeftAside, MainSection, RightAside, ThreeColumnContainer} from "../../Layouts/ThreeColumnLayout";
 import {DatePicker} from "@material-ui/pickers";
 import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
 import {
   Box,
-  Button,
+  CircularProgress,
   IconButton,
   List,
   ListItem,
@@ -15,15 +15,20 @@ import {
   Tooltip,
   Typography
 } from "@material-ui/core";
-import MenuIcon from '@material-ui/icons/Menu';
 import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import {getCurrentDate} from "../../../helpers/datetimeHelpers";
-import {format} from "date-fns";
+import {endOfDay, format, lastDayOfMonth, startOfDay, startOfMonth} from "date-fns";
 import {CalendarWeekView} from "./CalendarWeekView/CalendarWeekView";
-import {CalendarViewTypes} from "../../../constants/calendarConstants";
 import {CalendarMonthView} from "./CalendarMonthView/CalendarMonthView";
+import {CalendarViewTypes, useCalendar} from "../../../hooks/calendar/use-calendar";
+import {NavMarketPicker} from "../../Common/NavMarketPicker";
+import {useMarkets} from "../../../hooks/markets/use-markets";
+import {useCampaigns} from "../../../hooks/campaigns/use-campaigns";
+import {APIStatuses} from "../../../hooks/api/use-api";
+import {useSchedule} from "../../../hooks/schedules/use-schedule";
+import {useConfig} from "../../../hooks/config/use-config";
+import {utcToZonedTime, zonedTimeToUtc} from "date-fns-tz";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
   grow: {
@@ -35,30 +40,48 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }));
 
 export const CalendarIndexPage: React.FC = () => {
-  const classes = useStyles();
-  const [date, changeDate] = useState(new Date());
-  const [calendarViewType, changeCalendarViewType] = useState(CalendarViewTypes.month);
+  const {
+    timezone
+  } = useConfig();
+  const {
+    currentMarket,
+    apiStatus: marketsApiStatus
+  } = useMarkets();
+  const {
+    calendarViewType,
+    setCalendarViewType,
+    activeDate,
+    setActiveDate
+  } = useCalendar();
+
+  const startDate = zonedTimeToUtc(startOfDay(startOfMonth(activeDate)), timezone);
+  const endDate = zonedTimeToUtc(endOfDay(lastDayOfMonth(activeDate)), timezone);
+
+  const {
+    schedule,
+    apiStatus: scheduleApiStatus
+  } = useSchedule(startDate, endDate, currentMarket?.marketId);
+
+  const {
+    campaigns,
+    apiStatus: campaignsApiStatus
+  } = useCampaigns(startDate, endDate, currentMarket?.marketId);
+
   const handleChangeCalendarViewType = (event: React.ChangeEvent<{ value: unknown }>) => {
-    changeCalendarViewType(Number(event.target.value));
+    setCalendarViewType(Number(event.target.value));
   };
 
-  const currentDate = getCurrentDate();
+
+  const pageReady = [
+    marketsApiStatus,
+    scheduleApiStatus,
+    campaignsApiStatus
+  ].some((status) => status === APIStatuses.VALID)
 
   return (
     <ThreeColumnContainer>
       <LeftAside>
-        <div>
-          <Button
-            className={classes.coopButton}
-            variant="text"
-            fullWidth={true}
-            size="large"
-            color="primary"
-            startIcon={<MenuIcon />}
-          >
-            Demo Co-Op
-          </Button>
-        </div>
+        <NavMarketPicker />
         <div>
           <DatePicker
             autoOk
@@ -66,8 +89,12 @@ export const CalendarIndexPage: React.FC = () => {
             orientation="landscape"
             variant="static"
             openTo="date"
-            value={date}
-            onChange={(date) => date && changeDate(date)}
+            value={activeDate}
+            onChange={(date) => {
+              if (date) {
+                setActiveDate(date)
+              }
+            }}
           />
         </div>
       </LeftAside>
@@ -88,7 +115,7 @@ export const CalendarIndexPage: React.FC = () => {
               variant="h4"
               component="h1"
             >
-              {format(currentDate, 'LLLL, yyyy')}
+              {format(activeDate, 'LLLL, yyyy')}
             </Typography>
           </Box>
           <Box>
@@ -109,10 +136,13 @@ export const CalendarIndexPage: React.FC = () => {
             </Select>
           </Box>
         </Toolbar>
-        {(calendarViewType === CalendarViewTypes.month) && (
+        {(!pageReady) && (
+          <CircularProgress />
+        )}
+        {pageReady && (calendarViewType === CalendarViewTypes.month) && (
           <CalendarMonthView />
         )}
-        {(calendarViewType === CalendarViewTypes.week) && (
+        {pageReady && (calendarViewType === CalendarViewTypes.week) && (
           <CalendarWeekView />
         )}
       </MainSection>

@@ -1,22 +1,24 @@
 import React, {useEffect, useState} from 'react';
 import {APIStatuses, CommonAPI, useApi} from "../api/use-api";
-import {CustomOffer} from "../../types/offers/customOffers";
+import {Offer} from "../../types/offers/offer";
 
-export interface UseCustomOffersType extends CommonAPI {
-  customOffers?: CustomOffer[]
+export interface UseActiveOffersType extends CommonAPI {
+  activeOffers?: Offer[]
 }
 
-export const useCustomOffers = (customOfferIds: number[]): UseCustomOffersType => {
+export const useActiveOffers = ():UseActiveOffersType => {
   const [apiStatus, setApiStatus] = useState<APIStatuses>(APIStatuses.UNVERIFIED);
   const [apiError, setApiError] = useState<string>();
-  const [customOffers, setCustomOffers] = useState<CustomOffer[]>([])
+  const [activeOffers, setActiveOffers] = useState<Offer[]>([])
   const api = useApi();
 
-  const fetchCustomOffers = (customOfferIds: number[]) => {
+  const fetchActiveOffers = () => {
+
     setApiStatus(APIStatuses.VERIFYING);
-    api.get<CustomOffer[]>(`/offers/custom?customOfferIds=${customOfferIds.join(',')}`)
+
+    api.get<Offer[]>('/offers/active')
       .then((resp) => {
-        setCustomOffers(resp.data);
+        setActiveOffers(resp.data);
         setApiStatus(APIStatuses.VALID);
       })
       .catch((error) => {
@@ -27,12 +29,12 @@ export const useCustomOffers = (customOfferIds: number[]): UseCustomOffersType =
   }
 
   useEffect(() => {
-    fetchCustomOffers(customOfferIds);
-  }, [customOfferIds]);
+    fetchActiveOffers();
+  }, []);
 
   return {
     apiStatus,
     apiError,
-    customOffers,
+    activeOffers,
   }
 }

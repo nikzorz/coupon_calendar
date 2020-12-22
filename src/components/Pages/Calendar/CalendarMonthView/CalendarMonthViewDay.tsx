@@ -19,10 +19,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }))
 
 export interface CalendarMonthViewDayProps {
-  dayNumber: number
+  dayNumber: number,
+  onClick(): void,
+  onDoubleClick(): void
 }
 
-export const CalendarMonthViewDay: React.FC<CalendarMonthViewDayProps> = ({ dayNumber }) => {
+export const CalendarMonthViewDay: React.FC<CalendarMonthViewDayProps> = ({ dayNumber, onClick, onDoubleClick }) => {
 
   const classes = useStyles();
 
@@ -32,7 +34,10 @@ export const CalendarMonthViewDay: React.FC<CalendarMonthViewDayProps> = ({ dayN
       className={classes.container}
     >
       <div>
-        <Button>
+        <Button
+          onClick={onClick}
+          onDoubleClick={onDoubleClick}
+        >
           {dayNumber}
         </Button>
       </div>

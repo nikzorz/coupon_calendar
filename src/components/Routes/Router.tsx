@@ -15,6 +15,10 @@ import {CustomOfferCreatePage} from "../Pages/Offers/CustomOfferCreatePage";
 import {ScheduleViewPage} from "../Pages/Schedules/ScheduleViewPage";
 import { useAuth} from "../../hooks/auth/use-auth";
 import {APIStatuses} from "../../hooks/api/use-api";
+import {ChangePasswordPage} from "../Pages/User/ChangePasswordPage";
+import {ForgotPasswordPage} from "../Pages/User/ForgotPasswordPage";
+import {ResetPasswordPage} from "../Pages/User/ResetPasswordPage";
+import {ManageOfferLibraryPage} from "../Pages/Offers/ManageOfferLibraryPage";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
   rootContainer: {
@@ -42,7 +46,7 @@ export const Router: React.FC = () => {
   const auth = useAuth();
 
   // wait for first call to verify account
-  if (auth.apiStatus === APIStatuses.UNVERIFIED) {
+  if ([APIStatuses.UNVERIFIED, APIStatuses.VERIFYING].includes(auth.apiStatus)) {
     return (
       <Box className={classes.loader}>
         <CircularProgress />
@@ -60,8 +64,21 @@ export const Router: React.FC = () => {
           <UnauthenticatedRoute path="/login">
             <LoginPage />
           </UnauthenticatedRoute>
+          <UnauthenticatedRoute path="/forgotpassword">
+            <ForgotPasswordPage />
+          </UnauthenticatedRoute>
+          <UnauthenticatedRoute path="/resetpassword">
+            <ResetPasswordPage />
+          </UnauthenticatedRoute>
 
           {/* Authenticated Routes */}
+
+          {/* User */}
+          <AuthenticatedRoute path="/changepassword">
+            <ChangePasswordPage />
+          </AuthenticatedRoute>
+
+          {/* Schedules */}
           <AuthenticatedRoute path="/schedules/create">
             <ScheduleCreatePage />
           </AuthenticatedRoute>
@@ -71,15 +88,19 @@ export const Router: React.FC = () => {
           <AuthenticatedRoute path="/schedules">
             <ScheduleIndexPage />
           </AuthenticatedRoute>
+
+          {/* Offers */}
           <AuthenticatedRoute path="/offers/custom/create">
             <CustomOfferCreatePage />
           </AuthenticatedRoute>
           <AuthenticatedRoute path="/offers/manage">
-            <OfferIndexPage />
+            <ManageOfferLibraryPage />
           </AuthenticatedRoute>
           <AuthenticatedRoute path="/offers">
             <OfferIndexPage />
           </AuthenticatedRoute>
+
+          {/* Calendar */}
           <AuthenticatedRoute path="/">
             <CalendarIndexPage />
           </AuthenticatedRoute>

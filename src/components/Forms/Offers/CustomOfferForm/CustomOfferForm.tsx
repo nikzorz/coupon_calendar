@@ -4,9 +4,11 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { Link as RouterLink } from 'react-router-dom';
 import {Controller, useForm} from "react-hook-form";
 import {Box, Button, FormControl, FormHelperText, Grid, Input, InputLabel, TextField} from "@material-ui/core";
+import {useMarkets} from "../../../../hooks/markets/use-markets";
 
 export interface CustomOfferFormInputs {
-  title: string
+  marketId: number
+  name: string
   imageRequest: string
   pluRequest: string
 }
@@ -16,14 +18,20 @@ export interface CustomOfferFormProps {
 }
 
 export const customOfferFormSchema = yup.object().shape({
-  title: yup.string().required('Offer Name is a required field'),
+  name: yup.string().required('Offer Name is a required field'),
 })
 
 export const CustomOfferForm: React.FC<CustomOfferFormProps> = ({ onSubmit }) => {
+
+  const {
+    currentMarket
+  } = useMarkets();
+
   const {
     handleSubmit,
     control,
-    errors
+    errors,
+    register
   } = useForm<CustomOfferFormInputs>({
     resolver: yupResolver(customOfferFormSchema)
   })
@@ -31,6 +39,14 @@ export const CustomOfferForm: React.FC<CustomOfferFormProps> = ({ onSubmit }) =>
   return (
     <Box>
       <form onSubmit={handleSubmit(onSubmit)}>
+        {currentMarket && (
+          <input
+            type="hidden"
+            name="marketId"
+            defaultValue={currentMarket.marketId}
+            ref={register}
+          />
+        )}
         <Grid container spacing={4}>
           {/* Title Input */}
           <Grid
@@ -38,15 +54,16 @@ export const CustomOfferForm: React.FC<CustomOfferFormProps> = ({ onSubmit }) =>
             xs={8}
           >
             <Controller
-              name='title'
+              name='name'
               defaultValue=""
               control={control}
               render={({onBlur, onChange, value}) => (
                 <TextField
                   variant="filled"
+                  color="secondary"
                   label="Offer Name*"
-                  error={!!errors.title}
-                  helperText={errors.title?.message}
+                  error={!!errors.name}
+                  helperText={errors.name?.message}
                   value={value}
                   onChange={onChange}
                   onBlur={onBlur}
@@ -68,6 +85,7 @@ export const CustomOfferForm: React.FC<CustomOfferFormProps> = ({ onSubmit }) =>
               render={({onBlur, onChange, value}) => (
                 <TextField
                   variant="filled"
+                  color="secondary"
                   label="Special Image Request"
                   error={!!errors.imageRequest}
                   helperText={(
@@ -98,6 +116,7 @@ export const CustomOfferForm: React.FC<CustomOfferFormProps> = ({ onSubmit }) =>
               render={({onBlur, onChange, value}) => (
                 <TextField
                   variant="filled"
+                  color="secondary"
                   label="Special Image Request"
                   error={!!errors.pluRequest}
                   helperText={(

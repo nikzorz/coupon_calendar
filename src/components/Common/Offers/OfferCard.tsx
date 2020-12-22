@@ -9,7 +9,7 @@ import {makeStyles} from "@material-ui/core/styles";
 import {Offer, OfferTemplateTypesDisplay} from "../../../types/offers/offer";
 
 export const OFFER_CARD_HEIGHT = 75;
-export const OFFER_CARD_WIDTH = 260;
+export const OFFER_CARD_WIDTH = 240;
 
 // TODO Way too many hard coded pixel values here
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -20,6 +20,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
   },
   actionArea: {
     display: 'flex',
+    justifyContent: 'space-between'
   },
   details: {
     display: 'flex',

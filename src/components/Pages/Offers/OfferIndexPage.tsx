@@ -1,10 +1,8 @@
 import React, {useMemo} from 'react';
-import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
 import {Link as RouterLink} from 'react-router-dom';
 import {LeftAside, MainSection, RightAside, ThreeColumnContainer} from "../../Layouts/ThreeColumnLayout";
 import {
   Box,
-  Button,
   Checkbox,
   CircularProgress,
   FormControl,
@@ -21,56 +19,46 @@ import {
   Typography,
 } from "@material-ui/core";
 import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
-import MenuIcon from "@material-ui/icons/Menu";
+import GridOnIcon from '@material-ui/icons/GridOn';
 import SearchIcon from '@material-ui/icons/Search';
 import {OfferGridList} from "../../Common/Offers/OfferGridList";
 import {offerTemplateTypeOptions} from "../../../constants/offerConstants";
 import {useMarkets} from "../../../hooks/markets/use-markets";
-import {useOfferLibraries} from "../../../hooks/offers/use-offerLibrary";
+import {useOfferLibrary} from "../../../hooks/offers/use-offerLibrary";
 import {useOffers} from "../../../hooks/offers/use-offers";
 import {APIStatuses} from "../../../hooks/api/use-api";
-
-const useStyles = makeStyles((theme: Theme) => createStyles({
-  coopButton: {
-    justifyContent: 'start'
-  },
-  loader: {
-    position: 'fixed',
-    width: '100vw',
-    height: '100vh',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center'
-  }
-}));
-
-const mockData = Array.apply(null, Array(100)).map(() => '1');
+import {NavMarketPicker} from "../../Common/NavMarketPicker";
 
 export const OfferIndexPage: React.FC = () => {
-  const classes = useStyles();
-
-  const markets = useMarkets();
-  const offerLibraries = useOfferLibraries();
-
-  const currentLibrary = offerLibraries.offerLibraries?.find((library) => library.marketId === markets.currentMarket);
+  const {
+    currentMarket,
+    apiStatus: marketsStatus
+  } = useMarkets();
+  const {
+    offerLibrary,
+    apiStatus: offerLibraryStatus
+  } = useOfferLibrary(currentMarket?.marketId);
 
   const memoizedOfferIds = useMemo<number[]>(() => {
     const offerIds: number[] = [];
-    if (currentLibrary?.offerIds) {
-      offerIds.push(...currentLibrary.offerIds)
+    if (offerLibrary?.offerIds) {
+      offerIds.push(...offerLibrary.offerIds)
     }
-    if (currentLibrary?.inactiveOfferIds) {
-      offerIds.push(...currentLibrary.inactiveOfferIds)
+    if (offerLibrary?.inactiveOfferIds) {
+      offerIds.push(...offerLibrary.inactiveOfferIds)
     }
     return offerIds;
-  }, [currentLibrary])
+  }, [offerLibrary])
 
-  const offers = useOffers(memoizedOfferIds);
+  const {
+    offers,
+    apiStatus: offersStatus
+  } = useOffers(memoizedOfferIds);
 
   const pageReady = [
-    markets.apiStatus,
-    offerLibraries.apiStatus,
-    offers.apiStatus,
+    marketsStatus,
+    offerLibraryStatus,
+    offersStatus,
   ].every((status) => status === APIStatuses.VALID);
 
   const [offerTemplateFilterState, setOfferTemplateFilterState] = React.useState(offerTemplateTypeOptions.reduce(
@@ -89,16 +77,7 @@ export const OfferIndexPage: React.FC = () => {
   return (
     <ThreeColumnContainer>
       <LeftAside>
-        <Button
-          className={classes.coopButton}
-          variant="text"
-          fullWidth={true}
-          size="large"
-          color="primary"
-          startIcon={<MenuIcon />}
-        >
-          Demo Co-Op
-        </Button>
+        <NavMarketPicker />
         <Box paddingLeft="30px" marginTop="16px">
           <FormControl component="fieldset">
             <FormLabel component="legend">
@@ -145,7 +124,7 @@ export const OfferIndexPage: React.FC = () => {
         <Box overflow="auto">
           {pageReady ? (
             <OfferGridList
-              offers={offers.offers}
+              offers={offers}
             />
           ) : (
             <CircularProgress />
@@ -166,6 +145,21 @@ export const OfferIndexPage: React.FC = () => {
                 to="/offers/custom/create"
               >
                 <PlaylistAddIcon />
+              </IconButton>
+            </Tooltip>
+          </ListItem>
+          <ListItem>
+            <Tooltip
+              placement="left"
+              title="Manage Offer Libraries"
+              arrow
+            >
+              <IconButton
+                edge="start"
+                component={RouterLink}
+                to="/offers/manage"
+              >
+                <GridOnIcon />
               </IconButton>
             </Tooltip>
           </ListItem>
